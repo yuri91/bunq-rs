@@ -225,7 +225,11 @@ impl BunqConfigReady {
         loop {
             let (mut payments, pag) = next_page(&format!("{}{}", BASE, url))?;
             all.append(&mut payments);
-            if let Some(Pagination{older_url: Some(older_url),..}) = pag {
+            if let Some(Pagination {
+                older_url: Some(older_url),
+                ..
+            }) = pag
+            {
                 url = older_url;
             } else {
                 break;
@@ -287,4 +291,3 @@ pub struct MonetaryAccountBank {
     pub id: i64,
     pub description: String,
 }
-
