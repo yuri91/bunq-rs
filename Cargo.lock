@@ -48,7 +48,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "bunqledger"
+name = "bunq"
 version = "0.1.0"
 dependencies = [
  "anyhow",

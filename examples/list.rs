@@ -1,5 +1,5 @@
 use anyhow::Result;
-use bunqledger::BunqConfig;
+use bunq::BunqConfig;
 
 fn main() -> Result<()> {
     let cfg = BunqConfig::load()?;
