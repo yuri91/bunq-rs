@@ -202,6 +202,14 @@ impl BunqConfigReady {
         )
     }
     pub fn payments(&self, acc: &MonetaryAccountBank) -> Result<Vec<Payment>> {
+        self.payments_from_to(acc, None, None)
+    }
+    pub fn payments_from_to(
+        &self,
+        acc: &MonetaryAccountBank,
+        from: Option<i64>,
+        to: Option<i64>,
+    ) -> Result<Vec<Payment>> {
         let next_page = |url: &str| -> Result<(_, _)> {
             let response = isahc::http::Request::get(url)
                 .header("X-Bunq-Client-Authentication", &self.token)
@@ -221,15 +229,25 @@ impl BunqConfigReady {
             "/v1/user/{}/monetary-account/{}/payment",
             self.user_id, acc.id
         );
+        if let Some(to) = to {
+            url = format!("{}?newer_id={}", url, to);
+        }
         let mut all = Vec::new();
         loop {
             let (mut payments, pag) = next_page(&format!("{}{}", BASE, url))?;
             all.append(&mut payments);
+            dbg!(&pag);
             if let Some(Pagination {
                 older_url: Some(older_url),
                 ..
             }) = pag
             {
+                if let (Some(latest), Some(from)) = (all.last(), from) {
+                    if latest.id <= from {
+                        all = all.into_iter().filter(|p| p.id >= from).collect();
+                        break;
+                    }
+                }
                 url = older_url;
             } else {
                 break;
